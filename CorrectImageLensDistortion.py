@@ -1,8 +1,9 @@
 import numpy as np
 import cv2
+import sys
 
 # DISTORTION CORRECTION METHOD
-def distortionCorrect(k1,k2,p1,p2,k3,fx,fy,camCenterX,camCenterY,img):
+def distortionCorrect(k1,k2,p1,p2,k3,fx,fy,camCenterX,camCenterY,img,zoom):
 	dist = np.zeros((5,1),np.float64)
 	h,  w = img.shape[:2]
 
@@ -22,13 +23,12 @@ def distortionCorrect(k1,k2,p1,p2,k3,fx,fy,camCenterX,camCenterY,img):
 	# Focal length
 	camMtx[0,0] = fx       
 	camMtx[1,1] = fy     
-	print camCenterX,camCenterY
 	
 	# New camera matrix
 	newCamMtx = np.eye(3,dtype=np.float32)
 
-	y_shift = h/2;
-	x_shift = w/2;
+	y_shift = int(h*zoom)/2;
+	x_shift = int(w*zoom)/2;
 
 	# Center
 	newCamMtx[0,2] = camCenterX +x_shift
@@ -42,12 +42,13 @@ def distortionCorrect(k1,k2,p1,p2,k3,fx,fy,camCenterX,camCenterY,img):
 	mapx,mapy = cv2.initUndistortRectifyMap(camMtx,dist,None,newCamMtx,(w+2*x_shift,h+2*y_shift),5)
 	result = cv2.remap(img,mapx,mapy,cv2.INTER_LINEAR)
 
-	cv2.imwrite('result.jpg',result)
+	cv2.imwrite('resultManual.jpg',result)
 
 
 
 # CALIBRATION METHOD
-def calibrationCalculation(xCorners,yCorners,img):
+def calibrationCalculation(xCorners,yCorners,img,file):
+	# criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 	objp = np.zeros((xCorners*yCorners,3), np.float32)
 	objp[:,:2] = np.mgrid[0:xCorners,0:yCorners].T.reshape(-1,2)
 
@@ -59,7 +60,7 @@ def calibrationCalculation(xCorners,yCorners,img):
 	ret = True;
 	corners = np.zeros((xCorners*yCorners,1,2), np.float32)
 
-	lines = [line.rstrip('\n') for line in open('handmadefeatures_v2.txt')]
+	lines = [line.rstrip('\n') for line in open(file)]
 
 	cornerCount=0;
 	for line in lines:
@@ -79,7 +80,7 @@ def calibrationCalculation(xCorners,yCorners,img):
 
 		# Draw and display the corners
 		boardImg = cv2.drawChessboardCorners(img, (xCorners,yCorners), corners,ret)
-		cv2.imwrite('boardDrawn.jpg',boardImg)
+		cv2.imwrite('boardDrawnManual.jpg',boardImg)
 
 	ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
 	k1,k2,p1,p2,k3 = dist[0]
@@ -89,16 +90,21 @@ def calibrationCalculation(xCorners,yCorners,img):
 
 # MAIN METHOD
 def main():
-	img = cv2.imread("fisheye.jpg")
+	imgStr = sys.argv[1]#"fisheye.jpg"
+	xCorners =int(sys.argv[2])#19;
+	yCorners=int(sys.argv[3])#8;
+	file = sys.argv[4]#"handmadefeatures_v2.txt"
+	zoom = float(sys.argv[5])#1
+
+	img = cv2.imread(imgStr)
 	w  = img.shape[1]
 	h = img.shape[0]
-	xCorners =19;
-	yCorners=8;
-	k1, k2, p1, p2, k3, fx, fy, camCenterX,camCenterY = calibrationCalculation(xCorners,yCorners,img)
 
-	img = cv2.imread("fisheye.jpg")
+	k1, k2, p1, p2, k3, fx, fy, camCenterX,camCenterY = calibrationCalculation(xCorners,yCorners,img, file)
 
-	distortionCorrect(k1,k2,p1,p2,k3,fx,fy,camCenterX,camCenterY,img)
-	print "Completed distortion correction"
+	img = cv2.imread(imgStr)
+
+	distortionCorrect(k1,k2,p1,p2,k3,fx,fy,camCenterX,camCenterY,img,zoom)
+	print "Completed Distortion Correction"
 
 if  __name__ =='__main__':main()
