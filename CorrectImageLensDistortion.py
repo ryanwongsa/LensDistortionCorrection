@@ -26,22 +26,26 @@ def distortionCorrect(k1,k2,p1,p2,k3,fx,fy,camCenterX,camCenterY,img):
 	result = cv2.undistort(img,camMtx,dist)
 	cv2.imwrite('result.png',result)
 
-img = cv2.imread("fisheye.jpg")
-w  = img.shape[1]
-h = img.shape[0]
 
-k1 = -0.56221192
-k2 = 0.80029104
-p1 = -0.02754566
-p2 = 0.02465937
-k3 = -3.19925385
+# MAIN METHOD
+def main():
+	img = cv2.imread("fisheye.jpg")
+	w  = img.shape[1]
+	h = img.shape[0]
 
-camCenterX = 294.3132191 
-camCenterY = 331.04559839
+	k1 = -0.56221192
+	k2 = 0.80029104
+	p1 = -0.02754566
+	p2 = 0.02465937
+	k3 = -3.19925385
 
-fx = 423.54421997        
-fy = 391.90820312 
+	camCenterX = 294.3132191 
+	camCenterY = 331.04559839
 
-distortionCorrect(k1,k2,p1,p2,k3,fx,fy,camCenterX,camCenterY,img)
+	fx = 423.54421997        
+	fy = 391.90820312 
 
+	distortionCorrect(k1,k2,p1,p2,k3,fx,fy,camCenterX,camCenterY,img)
+	print "Completed distortion correction"
 
+if  __name__ =='__main__':main()
