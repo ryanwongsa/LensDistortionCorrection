@@ -59,7 +59,7 @@ def calibrationCalculation(xCorners,yCorners,img):
 	ret = True;
 	corners = np.zeros((xCorners*yCorners,1,2), np.float32)
 
-	lines = [line.rstrip('\n') for line in open('handmadefeatures.txt')]
+	lines = [line.rstrip('\n') for line in open('handmadefeatures_v2.txt')]
 
 	cornerCount=0;
 	for line in lines:
@@ -92,21 +92,10 @@ def main():
 	img = cv2.imread("fisheye.jpg")
 	w  = img.shape[1]
 	h = img.shape[0]
-	xCorners =11;
-	yCorners=7;
+	xCorners =19;
+	yCorners=8;
 	k1, k2, p1, p2, k3, fx, fy, camCenterX,camCenterY = calibrationCalculation(xCorners,yCorners,img)
 
-	# k1 = -0.56221192
-	# k2 = 0.80029104
-	# p1 = -0.02754566
-	# p2 = 0.02465937
-	# k3 = -3.19925385
-
-	# camCenterX = w/2.0 
-	# camCenterY = h/2.0
-
-	# fx = 423.54421997 
-	# fy = 391.90820312
 	img = cv2.imread("fisheye.jpg")
 
 	distortionCorrect(k1,k2,p1,p2,k3,fx,fy,camCenterX,camCenterY,img)
