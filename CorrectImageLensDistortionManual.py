@@ -42,7 +42,7 @@ def distortionCorrect(k1,k2,p1,p2,k3,fx,fy,camCenterX,camCenterY,img,zoom):
 	mapx,mapy = cv2.initUndistortRectifyMap(camMtx,dist,None,newCamMtx,(w+2*x_shift,h+2*y_shift),5)
 	result = cv2.remap(img,mapx,mapy,cv2.INTER_LINEAR)
 
-	cv2.imwrite('resultManual.jpg',result)
+	cv2.imwrite('results/resultManual.jpg',result)
 
 
 
@@ -80,7 +80,7 @@ def calibrationCalculation(xCorners,yCorners,img,file):
 
 		# Draw and display the corners
 		boardImg = cv2.drawChessboardCorners(img, (xCorners,yCorners), corners,ret)
-		cv2.imwrite('boardDrawnManual.jpg',boardImg)
+		cv2.imwrite('results/boardDrawnManual.jpg',boardImg)
 
 	ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
 	k1,k2,p1,p2,k3 = dist[0]
