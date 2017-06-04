@@ -67,6 +67,7 @@ The one requirement of the user is to input the camera's central focus point whi
 ## Examples
 
 Example results are found in the examples folder where some hand designed corner features are used too.
+
 1. 	
 ```
 	python featureExtraction.py images/fisheye.jpg
@@ -74,9 +75,9 @@ Example results are found in the examples folder where some hand designed corner
 ```
 2. 
 ```
-python CorrectImageLensDistortion.py images/fisheye.jpg 11 7 manual_features/handmadefeatures.txt 0
+python CorrectImageLensDistortion.py images/fisheye.jpg 19 8 manual_features/handmadefeatures_v2.txt 0.6
 ```
 3.
 ```
-python CorrectImageLensDistortion.py images/fisheye.jpg 19 8 manual_features/handmadefeatures_v2.txt 0.6
+python CorrectImageLensDistortion.py images/fisheye.jpg 11 7 manual_features/handmadefeatures.txt 0
 ```
