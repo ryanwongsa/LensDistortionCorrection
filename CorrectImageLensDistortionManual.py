@@ -37,7 +37,7 @@ def distortionCorrect(k1,k2,p1,p2,k3,fx,fy,camCenterX,camCenterY,img,zoom):
 	newCamMtx[0,0] = fx
 	newCamMtx[1,1] = fy
 
-
+	print camMtx
 	# applying undistortion using camera matrix and distorition coefficience using OpenCV library
 	mapx,mapy = cv2.initUndistortRectifyMap(camMtx,dist,None,newCamMtx,(w+2*x_shift,h+2*y_shift),5)
 	result = cv2.remap(img,mapx,mapy,cv2.INTER_LINEAR)
@@ -70,7 +70,7 @@ def calibrationCalculation(xCorners,yCorners,img,file):
 		corners[cornerCount][0][1]=y
 		cornerCount+=1
 
-	# print corners
+	print corners
 
 	if ret == True:
 		objpoints.append(objp)
