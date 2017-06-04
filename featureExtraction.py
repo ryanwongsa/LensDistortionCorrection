@@ -157,7 +157,31 @@ def extractFeatures(img,xCenter,yCenter,realXcenter,realYcenter,removalfactorH,r
 		for a in range(len(listTopLeft)):
 			corners[a][i][0]=listTopLeft[a][0]
 			corners[a][i][1]=listTopLeft[a][1]
+	# print corners	
 
+	# IMPROVE ROBUSTNESS
+	# for i in range(hListLen):
+	# q=0
+	for q in range(vListLen):
+		# print corners[q][0]	, corners[q][hListLen-1]	
+
+		y1,x1=corners[q][0]
+		y2,x2=corners[q][hListLen-1]
+		m =(float)(y2-y1)/(x2-x1)
+		# print m
+		c = - m * x1 +y1
+		# print c
+
+		for btwn in range(1,hListLen-1):
+			# print corners[q][btwn]
+			yReq = corners[q][btwn][1]*m+c
+			# print yReq, corners[q][btwn][0]
+			if yReq < corners[q][btwn][0]:
+				corners[q][btwn][0]=yReq
+
+
+	for i in range(hListLen):
+		for a in range(len(listTopLeft)):
 			# determine symmetric bottom
 			diffT = realYcenter-corners[a][i][0]
 			corners[-1-a][i][0]=realYcenter+diffT
@@ -191,7 +215,8 @@ def extractFeatures(img,xCenter,yCenter,realXcenter,realYcenter,removalfactorH,r
 			corners[i][ -1-j ][0]=corners[i][j][0]
 			corners[i][ -1-j ][1]=realXcenter+diffT
 
-	# print corners
+	
+
 	return corners
 
 def writeToFile(corners,xCorners,yCorners):
@@ -214,7 +239,7 @@ def main():
 
 	removalfactorH = 2
 	removalfactorV = 1
-	
+
 	img = cv2.imread(imgStr)
 	
 	corners = extractFeatures(img,xCenter,yCenter,realXcenter,realYcenter,removalfactorH,removalfactorV)
