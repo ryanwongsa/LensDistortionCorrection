@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-def horizontalCenterPointsFinder(centerHLine,xCenter,edges):
+def horizontalCenterPointsFinder(centerHLine,xCenter,edges,realXcenter,removalfactor):
 	whiteCount=0;
 	listOfXPositionsCenter =[]
 	# start from center and work backwards
@@ -12,7 +12,6 @@ def horizontalCenterPointsFinder(centerHLine,xCenter,edges):
 			whiteCount+=1
 
 		if whiteCount==10:
-			# print "gotem: ", x;
 			# ensure that the block sizes are decreasing
 			if len(listOfXPositionsCenter)>0:
 				xTempBefore = listOfXPositionsCenter[-1]
@@ -31,51 +30,16 @@ def horizontalCenterPointsFinder(centerHLine,xCenter,edges):
 			whiteCount=0
 
 	listOfXPositionsCenter.reverse()
-	
 
 	# add real center
-	listOfXPositionsCenter.append(2434)
-	# print listOfXPositionsCenter
-	currentLen= len(listOfXPositionsCenter)
+	listOfXPositionsCenter.append(realXcenter)
 
-	whiteCount=0;
-	intitialwhiteCount=13;
-	# start from center and work forward
-	for x in range(xCenter, edges.shape[1], 1):
-		# count 10 white pixels then mark as feature
-		# print centerHLine[y]
-		if centerHLine[x]==255:
-			whiteCount+=1
-
-
-		if whiteCount==intitialwhiteCount:
-			# print "gotem: ", x;
-			# ensure that the block sizes are decreasing
-			if len(listOfXPositionsCenter)>currentLen:
-				xTempBefore = listOfXPositionsCenter[-1]
-				sizeBlock = x-xTempBefore
-
-				if len(listOfXPositionsCenter)==currentLen+1:
-					xTemp2Before = xCenter
-				else:
-					xTemp2Before = listOfXPositionsCenter[-2]
-				sizeBlock2 =  xTempBefore-xTemp2Before
-				# print sizeBlock2, sizeBlock
-				if sizeBlock2< sizeBlock:
-					break # stop if error as blocks are increasing
-
-			listOfXPositionsCenter.append(x);
-			whiteCount=0
-			intitialwhiteCount=10
-	# print listOfXPositionsCenter
-
-	removalfactor=2
-	listOfXPositionsCenter=listOfXPositionsCenter[removalfactor:len(listOfXPositionsCenter)-removalfactor]
+	
+	listOfXPositionsCenter=listOfXPositionsCenter[removalfactor:]
 	print listOfXPositionsCenter
-
 	return listOfXPositionsCenter
 
-def verticalCenterPointsFinder(centerVLine,yCenter,edges):
+def verticalCenterPointsFinder(centerVLine,yCenter,edges,realYcenter,removalfactor):
 
 	whiteCount=0;
 	listOfYPositionsCenter =[]
@@ -86,7 +50,7 @@ def verticalCenterPointsFinder(centerVLine,yCenter,edges):
 		if centerVLine[y]==255:
 			whiteCount+=1
 
-		if whiteCount==8:
+		if whiteCount==20:
 			# print "gotem: ", y;
 			# ensure that the block sizes are decreasing
 			if len(listOfYPositionsCenter)>0:
@@ -94,7 +58,7 @@ def verticalCenterPointsFinder(centerVLine,yCenter,edges):
 				sizeBlock = yTempBefore-y
 
 				if len(listOfYPositionsCenter)==1:
-					yTemp2Before = 1895
+					yTemp2Before = realYcenter
 				else:
 					yTemp2Before = listOfYPositionsCenter[-2]
 				sizeBlock2 = yTemp2Before- yTempBefore
@@ -108,57 +72,20 @@ def verticalCenterPointsFinder(centerVLine,yCenter,edges):
 	
 	listOfYPositionsCenter.reverse()
 	# add real center
-	listOfYPositionsCenter.append(1895)
+	listOfYPositionsCenter.append(realYcenter)
+
+	listOfYPositionsCenter=listOfYPositionsCenter[removalfactor:]
 	print listOfYPositionsCenter
 
-	currentLen= len(listOfYPositionsCenter)
-
-	whiteCount=0;
-	intitialwhiteCount=9;
-	# start from center and work backwards
-	for y in range(yCenter, edges.shape[0], 1):
-		# count 10 white pixels then mark as feature
-		# print centerHLine[y]
-		if centerVLine[y]==255:
-			whiteCount+=1
-
-
-		if whiteCount==intitialwhiteCount:
-			# print "gotem: ", y;
-			# ensure that the block sizes are decreasing
-			if len(listOfYPositionsCenter)>currentLen:
-				yTempBefore = listOfYPositionsCenter[-1]
-				sizeBlock = y-yTempBefore
-
-				if len(listOfYPositionsCenter)==currentLen+1:
-					yTemp2Before = yCenter
-				else:
-					yTemp2Before = listOfYPositionsCenter[-2]
-				sizeBlock2 =  yTempBefore-yTemp2Before
-				# print sizeBlock2, sizeBlock
-				if sizeBlock2< sizeBlock:
-					break # stop if error as blocks are increasing
-
-			listOfYPositionsCenter.append(y);
-			whiteCount=0
-			if intitialwhiteCount==9:
-				intitialwhiteCount=10
-			else:
-				intitialwhiteCount=8
-	print listOfYPositionsCenter
-
-	reductionFactor=3
-	listOfYPositionsCenter=listOfYPositionsCenter[:len(listOfYPositionsCenter)-reductionFactor]
-	print listOfYPositionsCenter
-
-	return listOfYPositionsCenter, currentLen, len(listOfYPositionsCenter)-currentLen
+	return listOfYPositionsCenter
 
 def contourFollowing(edges,cValueX,yCenter,topCount):
 	
 	currPos = [yCenter,cValueX]
+
 	# CRAWLING UP
 	currCount=0;
-	miniBlocks =4;
+	miniBlocks =10;
 	currMini=0;
 	listOfCorners = []
 	while(currCount<topCount):
@@ -204,13 +131,80 @@ def contourFollowing(edges,cValueX,yCenter,topCount):
 
 
 
-def extractFeatures(img,xCorners,yCorners):
+def extractFeatures(img,xCenter,yCenter,realXcenter,realYcenter,removalfactorH,removalfactorV):
 
 	gray = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
 	eqlImg = cv2.equalizeHist(gray)
-	blurredImg = cv2.GaussianBlur(eqlImg,(5,5),0)
+	blurredImg = cv2.GaussianBlur(eqlImg,(3,3),0)
 	edges = cv2.Canny(blurredImg,50,150)
 	cv2.imwrite('results/edges.jpg',edges)
+
+
+	centerHLine = edges[yCenter,:]
+	centerHList = horizontalCenterPointsFinder(centerHLine,xCenter,edges,realXcenter,removalfactorH)
+
+	centerVLine = edges[:,xCenter]
+	centerVList= verticalCenterPointsFinder(centerVLine,yCenter,edges,realYcenter,removalfactorV)
+
+	hListLen = len(centerHList)-1
+	vListLen = len(centerVList)-1
+	corners = np.zeros((vListLen*2+1,hListLen*2+1,2), np.float32)
+	
+
+	for i in range(hListLen):
+		listTopLeft=contourFollowing(edges,centerHList[i],yCenter,vListLen)
+		print listTopLeft
+		for a in range(len(listTopLeft)):
+			corners[a][i][0]=listTopLeft[a][0]
+			corners[a][i][1]=listTopLeft[a][1]
+
+			# determine symmetric bottom
+			diffT = realYcenter-corners[a][i][0]
+			corners[-1-a][i][0]=realYcenter+diffT
+			corners[-1-a][i][1]=corners[a][i][1]
+
+		# add middle x values
+		corners[vListLen][i][0]=realYcenter
+		corners[vListLen][i][1]=centerHList[i]
+
+	# add center value
+	corners[vListLen][hListLen][0]=realYcenter
+	corners[vListLen][hListLen][1]=realXcenter
+
+	# add middle for y values
+	for i in range(vListLen):
+		corners[i][hListLen][0]=centerVList[i]
+		corners[i][hListLen][1]=realXcenter
+
+	# determine symmetric center y bottom
+	for a in range(vListLen):
+		diffT = realYcenter-corners[a][hListLen][0]
+		corners[-1-a][hListLen][0]=realYcenter+diffT
+		corners[-1-a][hListLen][1]=realXcenter
+
+		
+	# determine symmetric right
+	for i in range(vListLen*2+1):
+		for j in range(hListLen):
+			diffT = realXcenter-corners[i][j][1]
+
+			corners[i][ -1-j ][0]=corners[i][j][0]
+			corners[i][ -1-j ][1]=realXcenter+diffT
+
+	# print corners
+	return corners
+
+def writeToFile(corners,xCorners,yCorners):
+	file = open("features.txt","w") 
+	for i in range(yCorners-1,-1,-1):
+		for j in range(xCorners-1,-1,-1):
+			# print corners[i][j]
+			file.write(str(int(corners[i][j][1]))+","+str(int(corners[i][j][0]))+"\n")
+	file.close()  
+
+
+def main():
+	imgStr = "images/fisheye.jpg"
 
 	xCenter = 2378
 	yCenter = 1865
@@ -218,71 +212,13 @@ def extractFeatures(img,xCorners,yCorners):
 	realXcenter = 2434
 	realYcenter = 1895
 
-	centerHLine = edges[yCenter,:]
-	centerHList = horizontalCenterPointsFinder(centerHLine,xCenter,edges)
+	removalfactorH = 2
+	removalfactorV = 1
 	
-	centerVLine = edges[:,xCenter]
-	centerVList,bottomCount,topCount = verticalCenterPointsFinder(centerVLine,yCenter,edges)
-	centerVList = centerVList[2:]
-	print centerVList
-
-	corners = np.zeros((11,9,2), np.float32)
-
-	for i in range(4):
-		listTopLeft=[]
-		listTopLeft=contourFollowing(edges,centerHList[i],yCenter,topCount)
-	# 	print listTopLeft
-		for a in range(len(listTopLeft)):
-			corners[a][i][0]=listTopLeft[a][0]
-			corners[a][i][1]=listTopLeft[a][1]
-
-			# determine symmetric bottom
-			diffT = realYcenter-corners[a][i][0]
-			diffToCenterNum = 6+(4-a) # center + (mid - a)
-			corners[diffToCenterNum][i][0]=realYcenter+diffT
-			corners[diffToCenterNum][i][1]=corners[a][i][1]
-
-		# add middle values
-		corners[5][i][0]=realYcenter
-		corners[5][i][1]=centerHList[i]
-
-	# # add middle for y values
-	for i in range(11):
-		corners[i][4][0]=centerVList[i]
-		corners[i][4][1]=realXcenter
-
-	# determine symmetric right
-	for i in range(11):
-		for j in range(4):
-			diffT = realXcenter-corners[i][j][1]
-			diffToCenterNum = 4+(4-j) # center + (mid - a)
-			corners[i][diffToCenterNum][0]=corners[i][j][0]
-			corners[i][diffToCenterNum][1]=realXcenter+diffT
-
-	print corners
-	return corners
-
-def writeToFile(corners):
-	file = open("features.txt","w") 
-	for i in range(10,-1,-1):
-		for j in range(8,-1,-1):
-			# print corners[i][j]
-			file.write(str(int(corners[i][j][1]))+","+str(int(corners[i][j][0]))+"\n")
-	file.close()  
-
-
-
-def main():
-	imgStr = "images/fisheye.jpg"
-	xCorners =10;
-	yCorners=6;
-	# file = sys.argv[4]#"handmadefeatures_v2.txt"
-
 	img = cv2.imread(imgStr)
 	
-	corners = extractFeatures(img,xCorners,yCorners)
-	writeToFile(corners);
-
+	corners = extractFeatures(img,xCenter,yCenter,realXcenter,realYcenter,removalfactorH,removalfactorV)
+	writeToFile(corners,corners.shape[1],corners.shape[0])
 
 	print "Completed Feature Extraction"
 
