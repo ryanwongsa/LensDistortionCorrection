@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import sys
 
 def horizontalCenterPointsFinder(centerHLine,xCenter,edges,realXcenter,removalfactor):
 	whiteCount=0;
@@ -36,7 +37,7 @@ def horizontalCenterPointsFinder(centerHLine,xCenter,edges,realXcenter,removalfa
 
 	
 	listOfXPositionsCenter=listOfXPositionsCenter[removalfactor:]
-	print listOfXPositionsCenter
+	# print listOfXPositionsCenter
 	return listOfXPositionsCenter
 
 def verticalCenterPointsFinder(centerVLine,yCenter,edges,realYcenter,removalfactor):
@@ -75,7 +76,7 @@ def verticalCenterPointsFinder(centerVLine,yCenter,edges,realYcenter,removalfact
 	listOfYPositionsCenter.append(realYcenter)
 
 	listOfYPositionsCenter=listOfYPositionsCenter[removalfactor:]
-	print listOfYPositionsCenter
+	# print listOfYPositionsCenter
 
 	return listOfYPositionsCenter
 
@@ -130,7 +131,6 @@ def contourFollowing(edges,cValueX,yCenter,topCount):
 	return listOfCorners
 
 
-
 def extractFeatures(img,xCenter,yCenter,realXcenter,realYcenter,removalfactorH,removalfactorV):
 
 	gray = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
@@ -153,7 +153,7 @@ def extractFeatures(img,xCenter,yCenter,realXcenter,realYcenter,removalfactorH,r
 
 	for i in range(hListLen):
 		listTopLeft=contourFollowing(edges,centerHList[i],yCenter,vListLen)
-		print listTopLeft
+		# print listTopLeft
 		for a in range(len(listTopLeft)):
 			corners[a][i][0]=listTopLeft[a][0]
 			corners[a][i][1]=listTopLeft[a][1]
@@ -229,9 +229,10 @@ def writeToFile(corners,xCorners,yCorners):
 
 
 def main():
-	imgStr = "images/fisheye.jpg"
+	imgStr = sys.argv[1]#"images/fisheye.jpg"
 
-	xCenter = 2378
+	# Must change these for other images but may require tweaking to other areas such as edge detection algorithm
+	xCenter = 2378 
 	yCenter = 1865
 
 	realXcenter = 2434
@@ -243,6 +244,7 @@ def main():
 	img = cv2.imread(imgStr)
 	
 	corners = extractFeatures(img,xCenter,yCenter,realXcenter,realYcenter,removalfactorH,removalfactorV)
+	print "Grid Dimentions:", corners.shape[1],corners.shape[0]
 	writeToFile(corners,corners.shape[1],corners.shape[0])
 
 	print "Completed Feature Extraction"
