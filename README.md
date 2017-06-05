@@ -36,6 +36,7 @@ The one requirement of the user is to input the camera's central focus point whi
 * OUTPUT 
   * features.txt (contains the corner features to be used by CorrectImageLensDistortion)
   * text containing the grid dimensions used for CorrectImageLensDistortion.py
+  * results/edge.jpg (contains edge detected image)
 
 ### CorrectImageLensDistortion.py
 * INPUT    `> python CorrectImageLensDistortion.py images/fisheye.jpg 9 5 features.txt 0.5`
@@ -45,7 +46,6 @@ The one requirement of the user is to input the camera's central focus point whi
   * `0.5` - zoom factor (due to OpenCV undistortion methods cropping images adjusting this will allow for greater image size and view but also introduce areas of the image whereby undistortion was not correctly found) [setting to 0 will show area with most undistortion of the image].
 
 * OUTPUT 
-  * results/edge.jpg (contains edge detected image)
   * results/boardDrawn.jpg (contains image with grid of corners identified)
   * results/resultImage.jpg (contains undistorted image)
 
