@@ -2,6 +2,8 @@ import numpy as np
 import cv2
 import sys
 
+
+# METHOD TO DETERMINE CENTER HORIZONTAL BLOCK SPACING
 def horizontalCenterPointsFinder(centerHLine,xCenter,edges,realXcenter,removalfactor):
 	whiteCount=0;
 	listOfXPositionsCenter =[]
@@ -40,6 +42,7 @@ def horizontalCenterPointsFinder(centerHLine,xCenter,edges,realXcenter,removalfa
 	# print listOfXPositionsCenter
 	return listOfXPositionsCenter
 
+# METHOD TO DETERMINE CENTER VERTICAL BLOCK SPACING
 def verticalCenterPointsFinder(centerVLine,yCenter,edges,realYcenter,removalfactor):
 
 	whiteCount=0;
@@ -80,6 +83,7 @@ def verticalCenterPointsFinder(centerVLine,yCenter,edges,realYcenter,removalfact
 
 	return listOfYPositionsCenter
 
+# METHOD TO FOLLOW THE CONTOURS TO FIND BLOCK SPACING GOING VERTICALLY
 def contourFollowing(edges,cValueX,yCenter,topCount):
 	
 	currPos = [yCenter,cValueX]
@@ -130,7 +134,7 @@ def contourFollowing(edges,cValueX,yCenter,topCount):
 	listOfCorners.reverse()
 	return listOfCorners
 
-
+# GENERAL METHOD TO FIND THE CORNER FEATURES
 def extractFeatures(img,xCenter,yCenter,realXcenter,realYcenter,removalfactorH,removalfactorV):
 
 	gray = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
@@ -219,6 +223,7 @@ def extractFeatures(img,xCenter,yCenter,realXcenter,realYcenter,removalfactorH,r
 
 	return corners
 
+# METHOD TO WRITE FEATURES TO FILE
 def writeToFile(corners,xCorners,yCorners):
 	file = open("features.txt","w") 
 	for i in range(yCorners-1,-1,-1):
@@ -238,6 +243,7 @@ def main():
 	realXcenter = 2434
 	realYcenter = 1895
 
+	# based on observation of output of edge detector
 	removalfactorH = 2
 	removalfactorV = 1
 
