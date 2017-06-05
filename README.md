@@ -21,10 +21,10 @@ This was used to "simulate" a chessboard's corner features by following a sequen
 - Edge Detection (used to remove noise)
 - Parallel Horizontal / Vertical Square Side Detection (used to determine intervals for squares)
 - Contour Following (used to find when the rectangular blocks ended)
-- Corner Correction (used in the case were the edge detection algorithm was underperforming)
+- Corner Correction (used in the case where the edge detection algorithm was underperforming)
 - Symmetric Feature (Corner) Assignment (method to speed up algorithm / not required if previous algorithms are applied to all quadrants)
 
-The one requirement of the user is to input the camera's central focus point which enables for good for contour following and side detection. An assumption was made whereby if the image was divided into 4 quadrants around the focus point then the distortions are symmetric.
+The one requirement of the user is to input the camera's central focus point which enables for good for contour following and grid detection. An assumption was made whereby if the image was divided into 4 quadrants around the focus point then the distortions are symmetric.
 
 ![Board Example](/imgSrc/boardExample.png?raw=true "Example Grid Board")
 
@@ -59,9 +59,9 @@ The one requirement of the user is to input the camera's central focus point whi
 ## Potential Improvements
 - Refine Edge Detection to eliminate glare issue to allow for more grid corners to be located
 - Allow for automatic detection of central focus point
-- Improve robustness if the board is placed at an angle
-- Corner Correction could have used a quadratic equation instead of linear equation to assign corrected points
-- Possible use of the fisheye calibration opencv library (at the time documentation was limited to C++) to fix problems whereby outside of the grid feature area is heavily distorted
+- Improve robustness if the board is placed at an angle / rotated
+- Corner Correction could have used a quadratic equation instead of linear equation to assign corrected points which would have improved results
+- Possible use of the fisheye calibration OpenCV library (at the time documentation was limited to C++) to fix problems whereby outside of the grid feature area is heavily distorted
 ![Glare Example](/imgSrc/glareExample.png?raw=true "Example Glare")
 
 ## Examples
